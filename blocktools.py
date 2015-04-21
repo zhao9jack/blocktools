@@ -1,4 +1,7 @@
+from base58 import *
 import struct
+import base58
+import Crypto.Hash.SHA256 as SHA256
 
 
 def uint1(stream):
@@ -34,5 +37,15 @@ def varint(stream):
 	return -1
 
 def hashStr(bytebuffer):
-	return ''.join(('%x'%ord(a)) for a in bytebuffer)
+	return ''.join(('%02x'%ord(a)) for a in bytebuffer)
 
+def sha256(s):
+    return SHA256.new(s).digest()
+
+def double_sha256(s):
+    return sha256(sha256(s))
+
+
+def hash_to_address(version, hash):
+    vh = version + hash
+    return base58.b58encode(vh + double_sha256(vh)[:4])
